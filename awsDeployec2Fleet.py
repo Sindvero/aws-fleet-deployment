@@ -82,6 +82,7 @@ def attachVolume(AZ, instanceId):
             MultiAttachEnabled=True
         )
         volumeId = newVolume['VolumeId']
+        attachedVolumeinAZ[AZ] = 0
         time.sleep(5)
 
     ec2.attach_volume(
