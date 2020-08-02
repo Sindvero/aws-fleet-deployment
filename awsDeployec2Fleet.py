@@ -60,7 +60,7 @@ fleet = ec2.request_spot_fleet(
                         ],
                         'InstanceType': 't3.large',
                         'Placement': {
-                            'AvailabilityZone': 'us-east-1f'
+                            'AvailabilityZone': 'us-east-1f, us-east-1c'#If you want to add more AZ
                         }
                     }
                 ],
@@ -112,12 +112,6 @@ while(availableInstances != targetWanted):
     
     instanceId = instanceIds[availableInstances]['instanceId']
     AZ = instanceIds[availableInstances]['AZ']
-    if (AZ == 'us-east-1f'):
-        attachVolume(AZ, instanceId)
-        attachedVolumeinAZ[AZ] = attachedVolumeinAZ[AZ] + 1
-        
 
-    elif (AZ == 'us-east-1c'):
-        attachVolume(AZ, instanceId)
-        attachedVolumeinAZ[AZ] = attachedVolumeinAZ[AZ] + 1
-    # If you want to add another AZs please add an elif with you AZ and don't forget to change attachedVolumeinAZ dict
+    attachVolume(AZ, instanceId)
+    attachedVolumeinAZ[AZ] = attachedVolumeinAZ[AZ] + 1
