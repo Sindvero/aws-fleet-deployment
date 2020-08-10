@@ -48,7 +48,7 @@ attachedVolumeinAZ = {'us-east-1f': 0, 'us-east-1c': 0} #Add other AZs here that
 fleet = ec2.request_spot_fleet(
             SpotFleetRequestConfig={
                 'TargetCapacity': targetWanted,
-                'IamFleetRole': 'arn:aws:iam::964862435125:role/aws-ec2-spot-fleet-tagging-role',#It's a default one, you can change it if you want to.
+                'IamFleetRole': 'Your IAM role',#It's a default one, you can change it if you want to.
                 'LaunchSpecifications': [
                     {
                         'ImageId': 'ami-0ac80df6eff0e70b5',#If you want to change the image, you need to change this ID
