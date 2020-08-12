@@ -4,15 +4,16 @@ import boto3
 import sys
 import time
 
-# It's not the perfect script, I know that I could make some improvment such as using the aws waiter, using a class,... 
-# However, it works well and I think I check all the required boxes :)
+SPOTRATE = 0.8 # 80% on spot
+ONDEMANDRATE = 1/5 # 20% on-demand
+argc = len(sys.argv)
 ec2 = boto3.client('ec2')
 
 if (len(sys.argv) < 2):
     print("Usage: " + sys.argv[0] + " <Options>")
     print("\t")
     print("Options = <destroy>: To destroy your entire environment")
-    print("          <NumberofInstance desired (int)> <Security group ID (str)>")
+    print("          <num_nodes (int)> <subnets (arr, min=2)> <security_groups (arr, min=1)> <iam_fleet_role (str)> [instances_types (str)] [multi_attach_vol_size (int)] [ami_id (str)]")
     sys.exit(1)
 
 ###############################
@@ -36,31 +37,48 @@ if (sys.argv[1] == "destroy"):
 if (len(sys.argv) < 3):
     print("Usage: " + sys.argv[0] + " <Options>")
     print("\t")
-    print("Options = <NumberofInstance desired (int)> <Security group ID (str)")
+    print("Options = <num_nodes (int)> <subnets (arr, min=2)> <security_groups (arr, min=1)> <iam_fleet_role (str)> [instances_types (str)] [multi_attach_vol_size (int)] [ami_id (str)]")
     sys.exit(1)
 
-targetWanted = sys.argv[1]
+targetWanted = int(sys.argv[1])
+spotCapacity = targetWanted * SPOTRATE 
+demandCapacity = targetWanted * ONDEMANDRATE 
 availableInstances = 0 #available = True if state=running and io1 ebs volume attached
 instanceIds = []
 volumeId = ''
-securityGroup = sys.argv[2]
-attachedVolumeinAZ = {'us-east-1f': 0, 'us-east-1c': 0} #Add other AZs here that you may want
+securityGroup = sys.argv[3]
+iamFleetRole = sys.argv[4]
+subnets = sys.argv[2]
+subnetsList = subnets.split(',')
+attachedVolumeinAZ = {} 
+for subnet in subnetsList:
+    attachedVolumeinAZ[subnet] = 0
+
+instanceType = 't3.large'
+if (argc >= 6):
+    instanceType = sys.argv[5]
+
+imageId = 'ami-0ac80df6eff0e70b5'
+if (argc >= 8):
+    imageId = sys.argv[7]
+
 fleet = ec2.request_spot_fleet(
             SpotFleetRequestConfig={
-                'TargetCapacity': targetWanted,
-                'IamFleetRole': 'Your IAM role',#It's a default one, you can change it if you want to.
+                'TargetCapacity': spotCapacity,
+                'OnDemandTargetCapacity': demandCapacity,
+                'IamFleetRole': iamFleetRole, #Make sure you have the config to deploy spot fleet
                 'LaunchSpecifications': [
                     {
-                        'ImageId': 'ami-0ac80df6eff0e70b5',#If you want to change the image, you need to change this ID
+                        'ImageId': imageId,
                         # 'KeyName': 'YourKeyName',
                         'SecurityGroups': [
                             {
-                                'GroupId': securityGroup #Please change to your security gr
+                                'GroupId': securityGroup
                             }
                         ],
-                        'InstanceType': 't3.large',
+                        'InstanceType': instanceType,
                         'Placement': {
-                            'AvailabilityZone': 'us-east-1f, us-east-1c'#If you want to add more AZ
+                            'AvailabilityZone': subnets 
                         }
                     }
                 ],
@@ -73,6 +91,9 @@ def attachVolume(AZ, instanceId):
     global volumeId
     global availableInstances
     global attachedVolumeinAZ
+    sizeAttached = 3
+    if (argc >= 7):
+        sizeAttached = int(sys.argv[6])
     if (attachedVolumeinAZ[AZ] > 16 or availableInstances == 0):
         newVolume = ec2.create_volume(
             AvailabilityZone=AZ,
