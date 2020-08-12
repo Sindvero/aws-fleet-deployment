@@ -34,7 +34,7 @@ if (sys.argv[1] == "destroy"):
 ###############################
 #       Create environment
 ###############################
-if (len(sys.argv) < 3):
+if (argc < 5):
     print("Usage: " + sys.argv[0] + " <Options>")
     print("\t")
     print("Options = <num_nodes (int)> <subnets (arr, min=2)> <security_groups (arr, min=1)> <iam_fleet_role (str)> [instances_types (str)] [multi_attach_vol_size (int)] [ami_id (str)]")
@@ -94,7 +94,7 @@ def attachVolume(AZ, instanceId):
     sizeAttached = 3
     if (argc >= 7):
         sizeAttached = int(sys.argv[6])
-        
+
     if (attachedVolumeinAZ[AZ] > 16 or availableInstances == 0):
         newVolume = ec2.create_volume(
             AvailabilityZone=AZ,
