@@ -99,7 +99,7 @@ def attachVolume(AZ, instanceId):
         newVolume = ec2.create_volume(
             AvailabilityZone=AZ,
             Iops=150,
-            Size=8,
+            Size=sizeAttached,
             VolumeType='io1',
             MultiAttachEnabled=True
         )
