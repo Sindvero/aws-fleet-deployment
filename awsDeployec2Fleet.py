@@ -41,8 +41,8 @@ if (argc < 5):
     sys.exit(1)
 
 targetWanted = int(sys.argv[1])
-spotCapacity = targetWanted * SPOTRATE 
-demandCapacity = targetWanted * ONDEMANDRATE 
+spotCapacity = int(targetWanted * SPOTRATE)
+demandCapacity = int(targetWanted * ONDEMANDRATE)
 availableInstances = 0 #available = True if state=running and io1 ebs volume attached
 instanceIds = []
 volumeId = ''
