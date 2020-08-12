@@ -54,7 +54,7 @@ attachedVolumeinAZ = {}
 for subnet in subnetsList:
     attachedVolumeinAZ[subnet] = 0
 
-instanceType = 't3.large'
+instanceType = 't3.micro'
 if (argc >= 6):
     instanceType = sys.argv[5]
 
