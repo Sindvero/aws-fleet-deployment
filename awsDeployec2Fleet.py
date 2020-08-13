@@ -9,7 +9,7 @@ ONDEMANDRATE = 1/5 # 20% on-demand
 argc = len(sys.argv)
 ec2 = boto3.client('ec2')
 
-if (len(sys.argv) < 2):
+if (argc < 2):
     print("Usage: " + sys.argv[0] + " <Options>")
     print("\t")
     print("Options = <destroy>: To destroy your entire environment")
