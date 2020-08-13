@@ -1,5 +1,7 @@
 # Automate to deploy AWS' EC2 fleet running on spot instances
 
+## 3 ways of receiving parameters
+
 To use this Python script, please make sure to have the last boto3 version install (v1.14.32):
 ```
 pip3 (or pip) install boto3
@@ -9,12 +11,29 @@ or
 pip3 (or pip) install boto3==1.14.32
 ```
 
-If you want to destroy your environment:
+You have 3 choices to create your instances:
+
+-   Set your environment variables:
 ```
-python3 awsDeployec2Fleet.py destroy
+export NUM_NODES=3
+export SUBNETS=us-east-1f,us-east-1c
+export SECURITY_GROUPS=mySecurityGr
+export IAM_FLEET_ROLE=myIAMFleetRole
+```
+these are optionals:
+```
+export INSTANCES_TYPE=desiredInstanceType
+export MULTI_ATTACH_VOL_SIZE=desiredSize (in GB)
+export AMI_ID=desiredImageId
 ```
 
-If you want to create your environment:
+-   Give a Json file as input:
+
+```
+python3 awsDeployec2Fleet.py myConfig.json
+```
+
+- Command line input:
 ```
 python3 awsDeployec2Fleet.py <num_nodes (int)> <subnets (arr, min=2)> <security_groups (arr, min=1)> <iam_fleet_role (str)> [instances_types (str)] [multi_attach_vol_size (int)] [ami_id (str)]
 ```
