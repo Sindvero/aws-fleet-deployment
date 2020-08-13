@@ -50,6 +50,10 @@ securityGroup = sys.argv[3]
 iamFleetRole = sys.argv[4]
 subnets = sys.argv[2]
 subnetsList = subnets.split(',')
+if (len(subnetsList < 2)):
+    print("Please give at least 2 subnets ID")
+    sys.exit(1)
+    
 attachedVolumeinAZ = {} 
 for subnet in subnetsList:
     attachedVolumeinAZ[subnet] = 0
