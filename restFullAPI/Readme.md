@@ -1,6 +1,6 @@
 # Automate to deploy AWS' EC2 fleet running on spot instances
 
-## restFull API using flask
+## restFul API using flask
 
 To use this Python script, please make sure to have the last boto3 version install (v1.14.32) and to install flask:
 ```
