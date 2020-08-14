@@ -20,13 +20,13 @@ if [ $argc -ge 5 ]; then
 fi
 
 imageId='ami-0ac80df6eff0e70b5'
-if [ $argc -ge 6 ]; then
-    imageId=$6
+if [ $argc -ge 7 ]; then
+    imageId=$7
 fi
 
 size=3
-if [ $argc -ge 7 ]; then
-    size=$7
+if [ $argc -ge 6 ]; then
+    size=$6
 fi
 
 echo $targetWanted >> comms.fifo;
@@ -34,5 +34,5 @@ echo $subnets >> comms.fifo;
 echo $securityGroups >> comms.fifo;
 echo $iamFleetRole >> comms.fifo;
 echo $instanceType >> comms.fifo;
-echo $imageId >> comms.fifo;
 echo $size >> comms.fifo
+echo $imageId >> comms.fifo;

@@ -1,43 +1,44 @@
-import os
-import sys
-import atexit
+import flask
+from flask import request, jsonify
 import boto3
 import time
 
-thefifo = 'comms.fifo'
-os.mkfifo(thefifo)
-parameters = []
-# Clean when kill
-def cleanup():
-    os.remove(thefifo)
-atexit.register(cleanup)
-
-def getParameters(parameter):
-    global parameters
-    parameters.append(parameter)
+app = flask.Flask(__name__)
+app.config['DEBUG'] = True
 
 
-def deployment():
-    ec2 = boto3.client('ec2')
+parameters = {
+        'num_nodes': 0,
+        'subnets': '',
+        'security_groups': '',
+        'iam_fleet_role': '',
+        'instances_types': '',
+        'multi_attach_vol_size': 0,
+        'ami_id': ''
+    }
+
+def deployFleet():
     SPOTRATE = 0.8 # 80% on spot
     ONDEMANDRATE = 1/5 # 20% on-demand
-    targetWanted = int(parameters[0])
+    ec2 = boto3.client('ec2')
+
+    targetWanted = parameters['num_nodes']
     spotCapacity = int(targetWanted * SPOTRATE)
     demandCapacity = int(targetWanted * ONDEMANDRATE)
     availableInstances = 0 #available = True if state=running and io1 ebs volume attached
     instanceIds = []
     volumeId = ''
-    subnets = parameters[1]
+    subnets = parameters['subnets']
     subnetsList = subnets.split(',')
-    securityGroup = parameters[2]
-    iamFleetRole = parameters[3]
-    instanceType = parameters[4]
-    imageId = parameters[6]
+    securityGroup = parameters['security_groups']
+    iamFleetRole = parameters['iam_fleet_role']
+    instanceType = parameters['instances_types']
+    imageId = parameters['ami_id']
 
     attachedVolumeinAZ = {} 
     for subnet in subnetsList:
         attachedVolumeinAZ[subnet] = 0
-    
+        
     fleet = ec2.request_spot_fleet(
             SpotFleetRequestConfig={
                 'TargetCapacity': spotCapacity,
@@ -62,13 +63,14 @@ def deployment():
             }
         )
     time.sleep(20)
+
     def attachVolume(AZ, instanceId):
         global volumeId
         global availableInstances
         global attachedVolumeinAZ
         sizeAttached = 3
-        if (argc >= 6):
-            sizeAttached = int(sys.argv[5])
+        if (argc >= 7):
+            sizeAttached = int(sys.argv[6])
 
         if (attachedVolumeinAZ[AZ] > 16 or availableInstances == 0 or attachedVolumeinAZ[AZ] == 0):
             newVolume = ec2.create_volume(
@@ -112,11 +114,24 @@ def deployment():
 
         attachVolume(AZ, instanceId)
         attachedVolumeinAZ[AZ] = attachedVolumeinAZ[AZ] + 1
-    
 
-while True:
-    with open(thefifo, 'r') as fifo:
-        for line in fifo:
-            getParameters(line.strip())
-    deployment()
-    parameters.clear()
+
+@app.route('/<int:num_nodes>&<string:subnets>&<string:security_groups>&<string:iam_fleet_role>/', methods=['POST'])
+@app.route('/<int:num_nodes>&<string:subnets>&<string:security_groups>&<string:iam_fleet_role>&<string:instances_types>/', methods=['POST'])
+@app.route('/<int:num_nodes>&<string:subnets>&<string:security_groups>&<string:iam_fleet_role>&<string:instances_types>&<int:multi_attach_vol_size>/', 
+methods=['POST'])
+@app.route('/<int:num_nodes>&<string:subnets>&<string:security_groups>&<string:iam_fleet_role>&<string:instances_types>&<int:multi_attach_vol_size>&<string:ami_id>/'
+, methods=['POST'])
+def main(num_nodes, subnets, security_groups, iam_fleet_role, instances_types='t3.micro', multi_attach_vol_size=3, ami_id='ami-0ac80df6eff0e70b5'):
+    global parameters
+    parameters['num_nodes'] = num_nodes
+    parameters['subnets'] = subnets
+    parameters['security_groups'] = security_groups
+    parameters['iam_fleet_role'] = iam_fleet_role
+    parameters['instances_types'] = instances_types
+    parameters['multi_attach_vol_size'] = multi_attach_vol_size
+    parameters['ami_id'] = ami_id
+    deployFleet()
+    return parameters
+
+app.run()
