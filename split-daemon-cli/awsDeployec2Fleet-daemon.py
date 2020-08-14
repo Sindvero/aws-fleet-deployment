@@ -90,34 +90,33 @@ def deployment():
         availableInstances = availableInstances + 1
         print("New instance online (Id = " + instanceId + "). Total = " + str(availableInstances))
 
-        while(availableInstances != targetWanted):
-            availableInstancesParameter = ec2.describe_instances(
-                    Filters=[
-                        {
-                            'Name': 'instance-state-name',
-                            'Values': [
-                                'running'
-                            ]
-                        }
-                    ]
-                )
+    while(availableInstances != targetWanted):
+        availableInstancesParameter = ec2.describe_instances(
+                Filters=[
+                    {
+                        'Name': 'instance-state-name',
+                        'Values': [
+                            'running'
+                        ]
+                    }
+                ]
+            )
     
-            for r in availableInstancesParameter['Reservations']:
-                for i in r['Instances']:
-                    if (i['InstanceId'] not in instanceIds):
-                        instanceIds.append({'instanceId': i['InstanceId'], 'AZ': i['Placement']['AvailabilityZone']}) #Get the instances IDs (https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_instances)
+        for r in availableInstancesParameter['Reservations']:
+            for i in r['Instances']:
+                if (i['InstanceId'] not in instanceIds):
+                    instanceIds.append({'instanceId': i['InstanceId'], 'AZ': i['Placement']['AvailabilityZone']}) #Get the instances IDs (https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_instances)
     
-            instanceId = instanceIds[availableInstances]['instanceId']
-            AZ = instanceIds[availableInstances]['AZ']
+        instanceId = instanceIds[availableInstances]['instanceId']
+        AZ = instanceIds[availableInstances]['AZ']
 
-            attachVolume(AZ, instanceId)
-            attachedVolumeinAZ[AZ] = attachedVolumeinAZ[AZ] + 1
+        attachVolume(AZ, instanceId)
+        attachedVolumeinAZ[AZ] = attachedVolumeinAZ[AZ] + 1
     
 
 while True:
     with open(thefifo, 'r') as fifo:
         for line in fifo:
             getParameters(line.strip())
-    print(parameters)
     deployment()
     parameters.clear()
