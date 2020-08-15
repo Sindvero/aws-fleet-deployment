@@ -4,7 +4,7 @@
 
 First and foremost you nees to create your lambda function with the process.py script I created:
 ```
-zip zip lambda-process.zip process.py
+zip lambda-process.zip process.py
 aws lambda create-function --function-name lambda-function-aws-ec2-fleet --runtime python3.6 --zip-file fileb://lambda-process.zip --timeout 800 --handler process.lambda_handler --role <Your-arn-role>
 ```
 
