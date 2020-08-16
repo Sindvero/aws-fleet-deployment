@@ -33,6 +33,7 @@ def deployFleet():
     securityGroup = parameters['security_groups']
     iamFleetRole = parameters['iam_fleet_role']
     instanceType = parameters['instances_types']
+    sizeAttached = parameters['multi_attach_vol_size']
     imageId = parameters['ami_id']
 
     attachedVolumeinAZ = {} 
@@ -68,9 +69,7 @@ def deployFleet():
         global volumeId
         global availableInstances
         global attachedVolumeinAZ
-        sizeAttached = 3
-        if (argc >= 7):
-            sizeAttached = int(sys.argv[6])
+        global sizeAttached
 
         if (attachedVolumeinAZ[AZ] > 16 or availableInstances == 0 or attachedVolumeinAZ[AZ] == 0):
             newVolume = ec2.create_volume(

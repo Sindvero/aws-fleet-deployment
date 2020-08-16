@@ -149,8 +149,6 @@ def attachVolume(AZ, instanceId):
     global availableInstances
     global attachedVolumeinAZ
     global sizeAttached
-    if (argc >= 7):
-        sizeAttached = int(sys.argv[6])
 
     if (attachedVolumeinAZ[AZ] > 16 or availableInstances == 0 or attachedVolumeinAZ[AZ] == 0):
         newVolume = ec2.create_volume(

@@ -32,8 +32,9 @@ def deployment():
     securityGroup = parameters[2]
     iamFleetRole = parameters[3]
     instanceType = parameters[4]
+    sizeAttached = parameters[5]
     imageId = parameters[6]
-
+    
     attachedVolumeinAZ = {} 
     for subnet in subnetsList:
         attachedVolumeinAZ[subnet] = 0
@@ -66,9 +67,7 @@ def deployment():
         global volumeId
         global availableInstances
         global attachedVolumeinAZ
-        sizeAttached = 3
-        if (argc >= 6):
-            sizeAttached = int(sys.argv[5])
+        global sizeAttached
 
         if (attachedVolumeinAZ[AZ] > 16 or availableInstances == 0 or attachedVolumeinAZ[AZ] == 0):
             newVolume = ec2.create_volume(
