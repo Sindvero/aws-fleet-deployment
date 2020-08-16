@@ -20,3 +20,6 @@ python3 awsDeployec2Fleet.py <num_nodes> <subnets (min=2)> <security_groups (min
 ```
 
 The fleet deployed will span across at least 2 AZs.
+
+[options] = Optionnal
+\<options\> = Mandatory

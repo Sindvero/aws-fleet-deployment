@@ -21,3 +21,6 @@ python3 awsDeployec2Fleet-server.py
 chmod +x client.sh
 ./client.sh <num_nodes> <subnets (min=2)> <security_groups (min=1)> <iam_fleet_role> [instances_types] [multi_attach_vol_size] [ami_id]
 ```
+
+[options] = Optionnal
+\<options\> = Mandatory
